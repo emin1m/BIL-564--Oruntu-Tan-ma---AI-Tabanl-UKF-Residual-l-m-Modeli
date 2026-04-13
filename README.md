@@ -27,8 +27,8 @@ Physics:
 a_i(x) = sqrt(P0 / (1 + d_i^2))
 
 True measurement:
-z_i = g_i * a_i(x) + b_i + shadow(x) + noise
-Result
-Physics-only → fails under mismatch
-Hybrid → best balance
-Direct → powerful but less stable
+z_i = g_i * a_i(x) + b_i + shadow(x) + noise  
+Result  
+Physics-only → fails under mismatch  
+Hybrid → best balance  
+Direct → powerful but less stable  
