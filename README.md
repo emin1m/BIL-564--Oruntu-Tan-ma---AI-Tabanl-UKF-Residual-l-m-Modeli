@@ -4,221 +4,99 @@ Residual vs Direct Neural Measurement for State Estimation
 
 Overview
 
-This project explores how to improve state estimation by enhancing the measurement model in an Unscented Kalman Filter (UKF).
+This project improves state estimation by enhancing the measurement function in an Unscented Kalman Filter (UKF).
 
-Instead of modifying the filter itself, we focus on a more critical component:
+Instead of modifying the filter itself, we improve:
 
-The measurement function 
-ℎ
-(
-𝑥
-)
-h(x)
-
-We introduce neural network–based measurement models and compare them against the classical physics-based approach.
+the measurement model
 
 Motivation
 
-In real-world systems, measurement models are often imperfect due to:
+Real-world sensors are not ideal:
 
-Sensor gain variations
+Gain variations
 Bias offsets
-Environmental effects (e.g., shadowing, multipath)
+Environmental effects (shadowing, multipath)
 Measurement noise
 
 A purely physics-based model cannot capture all these effects.
 
-This project investigates:
-
-Can we learn the mismatch between the physics model and reality using AI?
-
 Approach
 
-We compare three different measurement modeling strategies inside the same UKF framework:
+We compare three measurement strategies inside the same UKF.
 
 1. Physics-Only Model
-𝑧
-=
-ℎ
-physics
-(
-𝑥
-)
-z=h
-physics
-	​
-
-(x)
-Uses only the analytical model
-Serves as the baseline
+z = h_physics(x)
+Pure analytical model
+Baseline approach
 2. Hybrid Residual Model (Physics + AI)
-𝑧
-=
-ℎ
-physics
-(
-𝑥
-)
-+
-𝑔
-𝜃
-(
-𝜙
-(
-𝑥
-)
-)
-z=h
-physics
-	​
-
-(x)+g
-θ
-	​
-
-(ϕ(x))
+z = h_physics(x) + g_theta(phi(x))
 Neural network learns the residual error
-Combines interpretability + flexibility
-More stable in practice
+Keeps physical structure
+More stable
 3. Direct Neural Measurement Model
-𝑧
-=
-ℎ
-𝜃
-(
-𝑥
-)
-z=h
-θ
-	​
-
-(x)
-Neural network learns the full measurement function
+z = h_theta(x)
+Fully learned measurement function
 No physics assumptions
-More expressive but harder to train
+More flexible but harder to train
 Key Idea
 
-We do NOT change the Kalman filter.
-We improve the measurement model.
+We do NOT change the Kalman filter
+We improve the measurement function
 
-This allows us to keep:
-
-UKF structure
-Probabilistic framework
-Physical interpretability
-
-while gaining:
-
-Adaptability to real-world imperfections
-Data-driven corrections
 System Model
-State: 
-[
-𝑥
-,
-𝑦
-,
-𝑣
-𝑥
-,
-𝑣
-𝑦
-]
-[x,y,v
-x
-	​
 
-,v
-y
-	​
+State:
 
-]
-Motion Model: Constant velocity with process noise
-Sensors: 2D grid (e.g., 5×5)
+[x, y, vx, vy]
+
 Physics Model:
-𝑎
-𝑖
-(
-𝑥
-)
-=
-𝑃
-0
-1
-+
-𝑑
-𝑖
-2
-a
-i
-	​
 
-(x)=
-1+d
-i
-2
-	​
-
-P
-0
-	​
-
-	​
-
-	​
+a_i(x) = sqrt(P0 / (1 + d_i^2))
 
 True Measurement Model:
-𝑧
-𝑖
-=
-𝑔
-𝑖
-⋅
-𝑎
-𝑖
-(
-𝑥
-)
-+
-𝑏
-𝑖
-+
-shadow
-(
-𝑥
-)
-+
-𝜖
-z
-i
-	​
 
-=g
-i
-	​
+z_i = g_i * a_i(x) + b_i + shadow(x) + noise
 
-⋅a
-i
-	​
+Where:
 
-(x)+b
-i
-	​
-
-+shadow(x)+ϵ
+g_i → sensor gain
+b_i → sensor bias
+shadow(x) → position-dependent distortion
+noise → Gaussian noise
 Experiments
-Shared dataset for fair comparison
-Same:
-sensor configuration
-trajectory
-noise conditions
-Models evaluated using:
-position RMSE
-tracking accuracy over time
+Same dataset for all models
+Same trajectory and noise
+Fair comparison
+
+Metrics:
+
+Position RMSE
+Tracking accuracy over time
 Results
-
-Key observations:
-
 Physics-only model fails under mismatch
 Residual model significantly improves performance
 Direct model can outperform but is less stable
+Project Structure
+.
+├── hybrid_ukf_residual_tracking.py
+├── hybrid_ukf_direct_h_tracking.py
+├── hybrid_ukf_residual_cnn_tracking.py
+├── hybrid_ukf_residual_gru_tracking.py
+├── hybrid_ukf_compare_residual_vs_direct.py
+├── hybrid_ukf_monte_carlo_time_mse.py
+├── trajectory_scenarios.py
+├── trajectory_scenarios_gaussian_extended.py
+How to Run
+
+Train and compare:
+
+python hybrid_ukf_compare_residual_vs_direct.py
+
+Monte Carlo:
+
+python hybrid_ukf_monte_carlo_time_mse.py
+Why UKF (not EKF)?
+Neural network inside measurement
+No analytical Jacobian
+UKF works without derivatives
